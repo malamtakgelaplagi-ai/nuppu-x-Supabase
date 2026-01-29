@@ -403,7 +403,7 @@ export const POS: React.FC = () => {
 
       {isCustModalOpen && (
         <div className="fixed inset-0 z-[350] flex items-center justify-center p-4">
-           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" onClick={() => setIsCustModalOpen(false)}></div>
+           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md no-print" onClick={() => setIsCustModalOpen(false)}></div>
            <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl relative z-10 animate-in zoom-in-95 flex flex-col max-h-[90vh]">
               <div className="flex justify-between items-center mb-6 shrink-0">
                  <h3 className="text-xl font-black text-slate-800">Pelanggan Baru</h3>
@@ -428,7 +428,7 @@ export const POS: React.FC = () => {
 
       {selectedProduct && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setSelectedProduct(null)}></div>
+          <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm no-print" onClick={() => setSelectedProduct(null)}></div>
           <div className="bg-white rounded-[3rem] p-8 w-full max-w-2xl shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[85vh]">
              <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-100">
                 <h2 className="text-2xl font-black text-slate-800 tracking-tight">{selectedProduct.name}</h2>

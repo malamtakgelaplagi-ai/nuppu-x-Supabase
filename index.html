@@ -20,44 +20,54 @@
 
         /* Media Query untuk Cetak Kertas */
         @media print {
-            /* Sembunyikan seluruh UI Utama */
-            body > * { display: none !important; }
-            
-            /* Tampilkan hanya area struk */
-            #invoice-print { 
-                display: block !important; 
+            /* Sembunyikan visibilitas seluruh body secara default */
+            body {
+                visibility: hidden;
+                background: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Paksa elemen struk dan isinya tetap terlihat */
+            #invoice-print, #invoice-print * {
                 visibility: visible !important;
-                position: fixed !important;
+            }
+
+            /* Reset kontainer induk agar tidak memotong atau menyembunyikan struk */
+            #root, #root > div, .fixed, .absolute, .inset-0 {
+                visibility: visible !important;
+                display: block !important;
+                position: static !important;
+                overflow: visible !important;
+                width: 100% !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                transform: none !important;
+            }
+
+            /* Posisikan struk di paling atas halaman */
+            #invoice-print {
+                position: absolute !important;
                 left: 0 !important;
                 top: 0 !important;
                 width: 100% !important;
-                margin: 0 !important;
-                padding: 10px !important;
                 background: white !important;
-                z-index: 99999 !important;
-            }
-            
-            #invoice-print * { 
-                visibility: visible !important; 
+                padding: 20px !important;
             }
 
-            .no-print { 
-                display: none !important; 
-                height: 0 !important; 
-                margin: 0 !important; 
-                padding: 0 !important; 
+            /* Sembunyikan elemen interaktif yang tidak perlu dicetak */
+            .no-print, button, .bg-slate-900\/80, .backdrop-blur-md {
+                display: none !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
             }
 
-            html, body {
-                background: white !important;
-                height: auto !important;
-                overflow: visible !important;
-            }
-
-            /* Hilangkan dekorasi bayangan/border modal saat cetak */
-            .bg-white.rounded-\[3rem\].shadow-2xl {
-                box-shadow: none !important;
-                border: none !important;
+            /* Optimasi untuk Printer Thermal (Kertas Kecil) */
+            @page {
+                margin: 0;
             }
         }
     </style>
