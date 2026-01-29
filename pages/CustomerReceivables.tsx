@@ -1,8 +1,10 @@
 
 import React, { useContext, useState, useMemo } from 'react';
 import { DataContext } from '../App';
-import { Wallet, Search, DollarSign, User, CheckCircle2, X, Loader2, Banknote, Eye, Printer, ReceiptText } from 'lucide-react';
+import { Wallet, Search, DollarSign, User, CheckCircle2, X, Loader2, Banknote, Eye, Printer, ReceiptText, FileDown } from 'lucide-react';
 import { db } from '../services/supabase';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 interface Props {
   isNested?: boolean;
@@ -19,7 +21,6 @@ export const CustomerReceivables: React.FC<Props> = ({ isNested }) => {
   const [paymentForm, setPaymentForm] = useState({ amount: '', method: 'Tunai' });
 
   if (!context) return null;
-  // Fix: 'locations' is not a property of AppContextType. Destructure only existing properties.
   const { data, refreshData, currentLocationId } = context;
 
   const sales = data?.Penjualan || [];
@@ -66,6 +67,46 @@ export const CustomerReceivables: React.FC<Props> = ({ isNested }) => {
       alert(`Gagal memproses pelunasan: ${errorMsg}`);
     }
     setIsSubmitting(false);
+  };
+
+  const handleExportPDF = () => {
+    if (!selectedSale) return;
+    const doc = new jsPDF({ unit: 'mm', format: [80, 150] });
+
+    doc.setFontSize(14);
+    doc.text('BUKTI PELUNASAN', 40, 10, { align: 'center' });
+    doc.setFontSize(8);
+    doc.text('NUPPU PRO', 40, 15, { align: 'center' });
+    doc.line(5, 18, 75, 18);
+
+    doc.setFontSize(7);
+    doc.text(`Nota Ref: ${selectedSale.id}`, 5, 23);
+    doc.text(`Customer: ${selectedSale.customer_name || selectedSale.customerName}`, 5, 27);
+    doc.text(`Tgl Bayar: ${new Date().toISOString().split('T')[0]}`, 5, 31);
+    doc.line(5, 33, 75, 33);
+
+    let y = 38;
+    doc.text('Detail Pembayaran:', 5, y);
+    y += 5;
+    doc.text('Nilai Nota:', 5, y);
+    doc.text(`Rp ${Number(selectedSale.total_price).toLocaleString()}`, 75, y, { align: 'right' });
+    y += 4;
+    doc.text('Pembayaran Ini:', 5, y);
+    doc.text(`Rp ${Number(paymentForm.amount).toLocaleString()}`, 75, y, { align: 'right' });
+    y += 4;
+    doc.setFontSize(9);
+    doc.text('Sisa Piutang:', 5, y + 2);
+    const sisa = (Number(selectedSale.remaining_amount) - Number(paymentForm.amount));
+    doc.text(`Rp ${sisa.toLocaleString()}`, 75, y + 2, { align: 'right' });
+    
+    y += 15;
+    doc.setFontSize(8);
+    doc.text(sisa <= 0 ? 'LUNAS' : 'BELUM LUNAS', 40, y, { align: 'center' });
+    y += 10;
+    doc.setFontSize(6);
+    doc.text('Terima kasih atas pelunasannya!', 40, y, { align: 'center' });
+
+    doc.save(`Pelunasan_${selectedSale.id}.pdf`);
   };
 
   const safeParseItems = (itemsStr: any) => {
@@ -194,6 +235,7 @@ export const CustomerReceivables: React.FC<Props> = ({ isNested }) => {
                </div>
                <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4 no-print">
                   <button onClick={() => window.print()} className="flex-1 py-4 bg-white border border-slate-200 font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase shadow-sm"><Printer size={16} /> Cetak Bukti</button>
+                  <button onClick={handleExportPDF} className="flex-1 py-4 bg-white border border-slate-200 font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase shadow-sm text-indigo-600"><FileDown size={16} /> Simpan PDF</button>
                   <button onClick={() => { setIsModalOpen(false); setShowReceipt(false); }} className="flex-1 py-4 bg-indigo-600 text-white font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase shadow-lg">Selesai</button>
                </div>
             </div>

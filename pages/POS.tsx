@@ -10,10 +10,13 @@ import {
   UserPlus,
   Phone,
   User,
-  FileText
+  FileText,
+  FileDown
 } from 'lucide-react';
 import { SaleType, SizeTarget } from '../types';
 import { db } from '../services/supabase';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 interface CartItem {
   productId: string;
@@ -203,6 +206,58 @@ export const POS: React.FC = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleExportPDF = () => {
+    if (!lastTransaction) return;
+    const doc = new jsPDF({ unit: 'mm', format: [80, 150] }); // Format Struk Thermal 80mm
+
+    doc.setFontSize(14);
+    doc.text('NUPPU PRO', 40, 10, { align: 'center' });
+    doc.setFontSize(8);
+    doc.text(activeLocation?.name || 'Gudang', 40, 15, { align: 'center' });
+    doc.line(5, 18, 75, 18);
+
+    doc.setFontSize(7);
+    doc.text(`ID: ${lastTransaction.id}`, 5, 23);
+    doc.text(`Tgl: ${lastTransaction.date}`, 5, 27);
+    doc.text(`Cust: ${lastTransaction.customer_name}`, 5, 31);
+    doc.line(5, 33, 75, 33);
+
+    let y = 38;
+    lastTransaction.cart.forEach((item: any) => {
+      doc.text(`${item.productName.substring(0, 25)}`, 5, y);
+      doc.text(`${item.color} ${item.size} x ${item.qty}`, 5, y + 4);
+      doc.text(`Rp ${(item.price * item.qty).toLocaleString()}`, 75, y + 4, { align: 'right' });
+      y += 10;
+    });
+
+    doc.line(5, y, 75, y);
+    y += 5;
+    doc.text('Total:', 5, y);
+    doc.text(`Rp ${lastTransaction.total_price.toLocaleString()}`, 75, y, { align: 'right' });
+    y += 4;
+    doc.text('Dibayar:', 5, y);
+    doc.text(`Rp ${lastTransaction.paid_amount.toLocaleString()}`, 75, y, { align: 'right' });
+    y += 4;
+    
+    if (lastTransaction.status !== 'PAID') {
+        doc.setTextColor(200, 0, 0);
+        doc.text('Sisa:', 5, y);
+        doc.text(`Rp ${Number(lastTransaction.remaining_amount).toLocaleString()}`, 75, y, { align: 'right' });
+        doc.setTextColor(0, 0, 0);
+        y += 6;
+        doc.text('BELUM LUNAS', 40, y, { align: 'center' });
+    } else {
+        y += 6;
+        doc.text('LUNAS', 40, y, { align: 'center' });
+    }
+
+    y += 10;
+    doc.setFontSize(6);
+    doc.text('Terima kasih atas pesanan Anda!', 40, y, { align: 'center' });
+
+    doc.save(`Struk_Nuppu_${lastTransaction.id}.pdf`);
   };
 
   const handleQuickCustomerAdd = async (e: React.FormEvent) => {
@@ -534,6 +589,9 @@ export const POS: React.FC = () => {
              <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4 no-print">
                 <button onClick={() => window.print()} className="flex-1 py-4 bg-white border border-slate-200 font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase transition-all hover:bg-slate-100 shadow-sm">
                    <Printer size={16} /> Cetak Struk
+                </button>
+                <button onClick={handleExportPDF} className="flex-1 py-4 bg-white border border-slate-200 font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase transition-all hover:bg-slate-100 shadow-sm text-indigo-600">
+                   <FileDown size={16} /> Simpan PDF
                 </button>
                 <button onClick={() => { setShowInvoiceModal(false); setCart([]); setCheckoutError(null); }} className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase transition-all hover:bg-indigo-700 shadow-lg">
                    <Plus size={16} /> Transaksi Baru
