@@ -107,10 +107,8 @@ export const POS: React.FC = () => {
       newCart[existingIdx].qty += 1;
       setCart(newCart);
     } else {
-      // Logika margin saat add to cart (snapshot)
       const margin = Number(activeLocation?.consignment_margin || 0);
       const isPusat = currentLocationId === 'loc-pusat';
-      // Jika margin 30%, maka harga setor pusat adalah 70% (1 - 0.3)
       const consPricePerItem = isPusat ? price : price * (1 - (margin / 100));
       
       setCart([...cart, {
@@ -148,10 +146,6 @@ export const POS: React.FC = () => {
     const isPusat = currentLocationId === 'loc-pusat';
     const effectiveType = !isPusat ? SaleType.KONSINYASI : saleType;
     const margin = Number(activeLocation?.consignment_margin || 0);
-    
-    // Perhitungan Total Consignment (Hak Pusat): 
-    // Jika Pusat: 100% dari total
-    // Jika Cabang: 1 - Margin. Contoh Margin 30% -> Setor Pusat 70%
     const totalConsignment = isPusat ? cartTotal : cartTotal * (1 - (margin / 100));
 
     const saleData = {
@@ -469,11 +463,25 @@ export const POS: React.FC = () => {
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md no-print" onClick={() => setShowInvoiceModal(false)}></div>
           <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
-             <div id="invoice-print" className="p-10 space-y-8 bg-white overflow-y-auto">
+             <div id="invoice-print" className="p-10 space-y-8 bg-white overflow-y-auto relative">
+                {/* Status Lunas/Belum Lunas Stempel */}
+                <div className="absolute top-10 right-10 pointer-events-none rotate-12 opacity-80">
+                   {lastTransaction.status === 'PAID' ? (
+                     <div className="border-4 border-emerald-500 text-emerald-500 px-4 py-2 rounded-xl font-black text-2xl uppercase tracking-widest">
+                       Lunas
+                     </div>
+                   ) : (
+                     <div className="border-4 border-rose-500 text-rose-500 px-4 py-2 rounded-xl font-black text-xl uppercase tracking-widest leading-none text-center">
+                       Belum<br/>Lunas
+                     </div>
+                   )}
+                </div>
+
                 <div className="text-center space-y-1">
                    <h1 className="text-3xl font-black text-indigo-600 tracking-tighter">NUPPU</h1>
                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{activeLocation?.name}</p>
                 </div>
+
                 <div className="flex justify-between items-start border-t border-b border-slate-100 py-4">
                    <div className="space-y-1">
                       <p className="text-[9px] font-black text-slate-400 uppercase">Customer</p>
@@ -484,6 +492,7 @@ export const POS: React.FC = () => {
                       <p className="text-[9px] font-bold text-slate-400">{lastTransaction.date}</p>
                    </div>
                 </div>
+
                 <div className="space-y-3">
                    {lastTransaction.cart.map((item: any, idx: number) => (
                       <div key={idx} className="flex justify-between text-xs">
@@ -495,20 +504,40 @@ export const POS: React.FC = () => {
                       </div>
                    ))}
                 </div>
+
                 <div className="border-t border-dashed border-slate-200 pt-4 space-y-2">
                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-slate-400 uppercase">Total</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase">Total Nota</span>
                       <span className="text-sm font-black text-slate-800">Rp {lastTransaction.total_price.toLocaleString()}</span>
                    </div>
                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-slate-400 uppercase">Bayar</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase">Sudah Bayar</span>
                       <span className="text-sm font-black text-indigo-600">Rp {lastTransaction.paid_amount.toLocaleString()}</span>
                    </div>
+                   
+                   {lastTransaction.status !== 'PAID' && (
+                     <div className="flex justify-between items-center border-t border-slate-50 pt-2">
+                        <span className="text-[10px] font-black text-rose-500 uppercase">Sisa Tagihan</span>
+                        <span className="text-base font-black text-rose-600 underline decoration-double">
+                          Rp {Number(lastTransaction.remaining_amount).toLocaleString()}
+                        </span>
+                     </div>
+                   )}
+                </div>
+
+                <div className="text-center pt-4 border-t border-slate-50">
+                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest italic">Barang yang sudah dibeli tidak dapat ditukar</p>
+                   <p className="text-[10px] font-black text-indigo-600 uppercase mt-1">Terima Kasih Atas Kepercayaan Anda</p>
                 </div>
              </div>
+
              <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4 no-print">
-                <button onClick={() => window.print()} className="flex-1 py-4 bg-white border border-slate-200 font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase"><Printer size={16} /> Cetak Struk</button>
-                <button onClick={() => { setShowInvoiceModal(false); setCart([]); setCheckoutError(null); }} className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase"><Plus size={16} /> Baru</button>
+                <button onClick={() => window.print()} className="flex-1 py-4 bg-white border border-slate-200 font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase transition-all hover:bg-slate-100">
+                   <Printer size={16} /> Cetak Struk
+                </button>
+                <button onClick={() => { setShowInvoiceModal(false); setCart([]); setCheckoutError(null); }} className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase transition-all hover:bg-indigo-700">
+                   <Plus size={16} /> Transaksi Baru
+                </button>
              </div>
           </div>
         </div>
