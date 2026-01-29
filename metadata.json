@@ -1,0 +1,7 @@
+{
+  "name": "Supabase x Sistem Produksi dan Penjualan Nuppu (SPPN)",
+  "description": "An integrated production management system for the convection industry, tracking materials, workflows, and automated HPP calculations.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
