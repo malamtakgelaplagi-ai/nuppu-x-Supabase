@@ -20,20 +20,42 @@
 
         /* Media Query untuk Cetak Kertas */
         @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; }
-            #root > div { background: white !important; }
+            /* Sembunyikan seluruh UI Utama */
+            body > * { display: none !important; }
             
-            /* Sembunyikan semua kecuali area yang ingin dicetak */
-            body * { visibility: hidden; }
-            #invoice-print, #invoice-print * { visibility: visible; }
-            #invoice-print {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 0;
+            /* Tampilkan hanya area struk */
+            #invoice-print { 
+                display: block !important; 
+                visibility: visible !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 10px !important;
+                background: white !important;
+                z-index: 99999 !important;
+            }
+            
+            #invoice-print * { 
+                visibility: visible !important; 
+            }
+
+            .no-print { 
+                display: none !important; 
+                height: 0 !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+            }
+
+            html, body {
+                background: white !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            /* Hilangkan dekorasi bayangan/border modal saat cetak */
+            .bg-white.rounded-\[3rem\].shadow-2xl {
                 box-shadow: none !important;
                 border: none !important;
             }

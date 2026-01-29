@@ -460,19 +460,19 @@ export const POS: React.FC = () => {
       )}
 
       {showInvoiceModal && lastTransaction && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md no-print" onClick={() => setShowInvoiceModal(false)}></div>
-          <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
-             <div id="invoice-print" className="p-10 space-y-8 bg-white overflow-y-auto relative">
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 overflow-auto">
+          <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md no-print" onClick={() => setShowInvoiceModal(false)}></div>
+          <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md relative z-10 overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+             <div id="invoice-print" className="p-10 space-y-8 bg-white overflow-visible relative">
                 {/* Status Lunas/Belum Lunas Stempel */}
-                <div className="absolute top-10 right-10 pointer-events-none rotate-12 opacity-80">
+                <div className="absolute top-10 right-10 pointer-events-none rotate-12 opacity-100">
                    {lastTransaction.status === 'PAID' ? (
-                     <div className="border-4 border-emerald-500 text-emerald-500 px-4 py-2 rounded-xl font-black text-2xl uppercase tracking-widest">
+                     <div className="border-4 border-emerald-600 text-emerald-600 px-4 py-2 rounded-xl font-black text-3xl uppercase tracking-widest bg-emerald-50/50">
                        Lunas
                      </div>
                    ) : (
-                     <div className="border-4 border-rose-500 text-rose-500 px-4 py-2 rounded-xl font-black text-xl uppercase tracking-widest leading-none text-center">
-                       Belum<br/>Lunas
+                     <div className="border-4 border-rose-600 text-rose-600 px-4 py-2 rounded-xl font-black text-2xl uppercase tracking-widest leading-none text-center bg-rose-50/50">
+                       BELUM<br/>LUNAS
                      </div>
                    )}
                 </div>
@@ -516,9 +516,9 @@ export const POS: React.FC = () => {
                    </div>
                    
                    {lastTransaction.status !== 'PAID' && (
-                     <div className="flex justify-between items-center border-t border-slate-50 pt-2">
-                        <span className="text-[10px] font-black text-rose-500 uppercase">Sisa Tagihan</span>
-                        <span className="text-base font-black text-rose-600 underline decoration-double">
+                     <div className="flex justify-between items-center border-t border-slate-100 pt-2">
+                        <span className="text-[10px] font-black text-rose-600 uppercase font-black">SISA PEMBAYARAN</span>
+                        <span className="text-lg font-black text-rose-600 underline decoration-double">
                           Rp {Number(lastTransaction.remaining_amount).toLocaleString()}
                         </span>
                      </div>
@@ -532,10 +532,10 @@ export const POS: React.FC = () => {
              </div>
 
              <div className="p-8 bg-slate-50 border-t border-slate-100 flex gap-4 no-print">
-                <button onClick={() => window.print()} className="flex-1 py-4 bg-white border border-slate-200 font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase transition-all hover:bg-slate-100">
+                <button onClick={() => window.print()} className="flex-1 py-4 bg-white border border-slate-200 font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase transition-all hover:bg-slate-100 shadow-sm">
                    <Printer size={16} /> Cetak Struk
                 </button>
-                <button onClick={() => { setShowInvoiceModal(false); setCart([]); setCheckoutError(null); }} className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase transition-all hover:bg-indigo-700">
+                <button onClick={() => { setShowInvoiceModal(false); setCart([]); setCheckoutError(null); }} className="flex-[2] py-4 bg-indigo-600 text-white font-black rounded-2xl flex items-center justify-center gap-2 text-[10px] uppercase transition-all hover:bg-indigo-700 shadow-lg">
                    <Plus size={16} /> Transaksi Baru
                 </button>
              </div>
